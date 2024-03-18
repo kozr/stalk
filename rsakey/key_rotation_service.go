@@ -155,7 +155,7 @@ func (krs *KeyRotationService) GetLatestPublicKey() (string, error) {
 	return key, nil
 }
 
-func (krs *KeyRotationService) GetAllPublicKeys() ([]string, error) {
+func (krs *KeyRotationService) GetAllPublicKeys() []string {
 	krs.lock.RLock() // Ensure thread-safe access to the keys
 	defer krs.lock.RUnlock()
 
@@ -164,5 +164,5 @@ func (krs *KeyRotationService) GetAllPublicKeys() ([]string, error) {
 		keysPEM = append(keysPEM, k.PEMString)
 	}
 
-	return keysPEM, nil
+	return keysPEM
 }

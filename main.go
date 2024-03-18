@@ -35,12 +35,8 @@ func publicKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch the latest public key in PEM format
-	pemStrings, err := rotationService.GetAllPublicKeys()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to get public keys: %v", err), http.StatusInternalServerError)
-		return
-	}
+	// Fetch the latest public keys in PEM format
+	pemStrings := rotationService.GetAllPublicKeys()
 
 	if len(pemStrings) == 0 {
 		http.Error(w, "No public keys available", http.StatusNotFound)
@@ -50,7 +46,7 @@ func publicKeyHandler(w http.ResponseWriter, r *http.Request) {
 	// Prepare the data
 	data := map[string]interface{}{
 		"latest_key": pemStrings[len(pemStrings)-1], // Assuming the last key is the latest
-		"all_keys":   pemStrings,
+		"past_keys":  pemStrings[:len(pemStrings)-1],
 	}
 
 	// Marshal the data to JSON
