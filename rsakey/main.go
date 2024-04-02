@@ -2,8 +2,10 @@ package rsakey
 
 var rotationService *KeyRotationService
 
-func Init() {
+func Init() error {
 	rotationService = NewKeyRotationService()
+
+	return nil
 }
 
 func GetRotationService() *KeyRotationService {

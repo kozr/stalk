@@ -1,10 +1,10 @@
-package connection_manager
+package comm_manager
 
 import (
 	"fmt"
 
 	"github.com/gorilla/websocket"
-	follow_service "github.com/kozr/stalk/follow_service"
+	"github.com/kozr/stalk/follow_service"
 	"github.com/kozr/stalk/rsakey"
 )
 

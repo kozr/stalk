@@ -1,4 +1,4 @@
-package connection_manager
+package comm_manager
 
 import (
 	"net/http"
