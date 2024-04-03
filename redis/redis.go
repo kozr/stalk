@@ -27,7 +27,7 @@ func Init() error {
 	return nil
 }
 
-func saveMessageToRedis(key string, value string, expiration time.Duration) error {
+func saveKeyToRedis(key string, value string, expiration time.Duration) error {
 	const operationTimeout = 5 * time.Second
 
 	// Create a new context with the operation timeout
@@ -38,7 +38,24 @@ func saveMessageToRedis(key string, value string, expiration time.Duration) erro
 
 	if err != nil {
 		log.Printf("Failed to save message to Redis: %v", err)
-		return err // Propagate the error for further handling
+		return err
+	}
+
+	return nil
+}
+
+func removeKeyFromRedis(key string) error {
+	const operationTimeout = 5 * time.Second
+
+	// Create a new context with the operation timeout
+	operationCtx, cancel := context.WithTimeout(context.Background(), operationTimeout)
+	defer cancel()
+
+	err := redisClient.Del(operationCtx, key).Err()
+
+	if err != nil {
+		log.Printf("Failed to remove message from Redis: %v", err)
+		return err
 	}
 
 	return nil

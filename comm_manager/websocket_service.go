@@ -23,8 +23,23 @@ func (wsc *WebSocketConnection) ReadMessage() (int, []byte, error) {
 	return wsc.conn.ReadMessage()
 }
 
+func (wsc *WebSocketConnection) ReadJSON(v interface{}) error {
+	return wsc.conn.ReadJSON(v)
+}
+
 func (wsc *WebSocketConnection) WriteMessage(messageType int, data []byte) error {
 	return wsc.conn.WriteMessage(messageType, data)
+}
+
+func (wsc *WebSocketConnection) SetCloseHandler(callback func()) {
+	wsc.conn.SetCloseHandler(func(code int, text string) error {
+		callback()
+		return nil
+	})
+}
+
+func (wsc *WebSocketConnection) WriteJSON(v interface{}) error {
+	return wsc.conn.WriteJSON(v)
 }
 
 func (wsc *WebSocketConnection) Close() error {
