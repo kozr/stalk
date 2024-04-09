@@ -19,3 +19,39 @@ func UpdateUserOnlineStatus(userId string, online bool) error {
 
 	return nil
 }
+
+func GetOnlineFollowers(userId string) ([]string, error) {
+	rows, err := DB.Query("SELECT follower_id FROM followers WHERE user_id = $1 AND online = true", userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followers []string
+	for rows.Next() {
+		var followerId string
+		err := rows.Scan(&followerId)
+		if err != nil {
+			return nil, err
+		}
+		followers = append(followers, followerId)
+	}
+
+	return followers, nil
+}
+
+func AddFollower(userId string, followerId string) error {
+	_, err := DB.Exec("INSERT INTO followers (user_id, follower_id) VALUES ($1, $2)", userId, followerId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func RemoveFollower(userId string, followerId string) error {
+	_, err := DB.Exec("DELETE FROM followers WHERE user_id = $1 AND follower_id = $2", userId, followerId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

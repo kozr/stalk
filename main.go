@@ -7,7 +7,6 @@ import (
 	"time"
 
 	database "github.com/kozr/stalk/database"
-	redis_client "github.com/kozr/stalk/redis"
 	rsakey "github.com/kozr/stalk/rsakey"
 	web_server "github.com/kozr/stalk/web_server"
 )
@@ -30,13 +29,10 @@ func main() {
 func initServices() error {
 	var err error
 	if err = rsakey.Init(); err != nil {
-		return fmt.Errorf("RSA Key initialization failed: %w", err)
-	}
-	if err = redis_client.Init(); err != nil {
-		return fmt.Errorf("Redis client initialization failed: %w", err)
+		return fmt.Errorf("rsa key service initialization failed: %w", err)
 	}
 	if err = database.Init(); err != nil {
-		return fmt.Errorf("Database initialization failed: %w", err)
+		return fmt.Errorf("database initialization failed: %w", err)
 	}
 	rotationService := rsakey.GetRotationService()
 	rotationService.SetRotationInterval(time.Hour * 24)

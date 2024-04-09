@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gorilla/websocket"
+	"github.com/kozr/stalk/cache"
 	db "github.com/kozr/stalk/database"
-	redis "github.com/kozr/stalk/redis"
 	"github.com/kozr/stalk/rsakey"
 	follow_service "github.com/kozr/stalk/user_follow_service"
 )
@@ -51,6 +51,6 @@ func broadcastToFollowers(userId string, message string) {
 
 func handleUserDisconnect(userId string) {
 	db.UpdateUserOnlineStatus(userId, false)
-	redis.RemoveUserUrl(userId)
-	redis.RemoveUserChannel(userId)
+	cache.RemoveUserChannel(userId)
+	cache.RemoveUserUrl(userId)
 }

@@ -8,6 +8,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const DEFAULT_TIMEOUT = 5 * time.Second
+
 var redisClient *redis.Client
 
 func Init() error {
@@ -27,11 +29,12 @@ func Init() error {
 	return nil
 }
 
-func saveKeyToRedis(key string, value string, expiration time.Duration) error {
-	const operationTimeout = 5 * time.Second
+func put(key string, value string) error {
+	return putWithExpiration(key, value, 0)
+}
 
-	// Create a new context with the operation timeout
-	operationCtx, cancel := context.WithTimeout(context.Background(), operationTimeout)
+func putWithExpiration(key string, value string, expiration time.Duration) error {
+	operationCtx, cancel := context.WithTimeout(context.Background(), DEFAULT_TIMEOUT)
 	defer cancel()
 
 	err := redisClient.Set(operationCtx, key, value, expiration).Err()
@@ -44,11 +47,8 @@ func saveKeyToRedis(key string, value string, expiration time.Duration) error {
 	return nil
 }
 
-func removeKeyFromRedis(key string) error {
-	const operationTimeout = 5 * time.Second
-
-	// Create a new context with the operation timeout
-	operationCtx, cancel := context.WithTimeout(context.Background(), operationTimeout)
+func remove(key string) error {
+	operationCtx, cancel := context.WithTimeout(context.Background(), DEFAULT_TIMEOUT)
 	defer cancel()
 
 	err := redisClient.Del(operationCtx, key).Err()
@@ -59,4 +59,18 @@ func removeKeyFromRedis(key string) error {
 	}
 
 	return nil
+}
+
+func get(key string) (string, error) {
+	operationCtx, cancel := context.WithTimeout(context.Background(), DEFAULT_TIMEOUT)
+	defer cancel()
+
+	result, err := redisClient.Get(operationCtx, key).Result()
+
+	if err != nil {
+		log.Printf("Failed to get message from Redis: %v", err)
+		return "", err
+	}
+
+	return result, nil
 }
