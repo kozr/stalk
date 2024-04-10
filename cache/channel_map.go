@@ -28,7 +28,7 @@ func GetUserChannel(userId string) (chan string, error) {
 	defer inMemoryChannelMap.RUnlock()
 	channel, ok := inMemoryChannelMap.m[userId]
 	if !ok {
-		return nil, ErrCacheMiss
+		return nil, ErrCacheMiss("channel not found for user id: " + userId)
 	}
 	return channel, nil
 }

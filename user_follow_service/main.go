@@ -29,16 +29,7 @@ func RemoveChannel(userId string) {
 	cache.RemoveUserChannel(userId)
 }
 
-func GetAliveFollowerChannels(userId string) ([]chan string, error) {
-	var channelIds []chan string
+func GetOnlineFollowers(userId string) ([]string, error) {
 	onlineFollowers, err := db.GetOnlineFollowers(userId)
-	if err != nil {
-		return nil, err
-	}
-	for _, follower := range onlineFollowers {
-		if channelId, err := cache.GetUserChannel(follower); err == nil {
-			channelIds = append(channelIds, channelId)
-		}
-	}
-	return channelIds, nil
+	return onlineFollowers, err
 }

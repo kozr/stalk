@@ -1,5 +1,9 @@
 package cache
 
-import "errors"
+import (
+	"errors"
+)
 
-var ErrCacheMiss = errors.New("cache: key not found")
+func ErrCacheMiss(message string) error {
+	return errors.New("cache miss: " + message)
+}

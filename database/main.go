@@ -21,7 +21,7 @@ func UpdateUserOnlineStatus(userId string, online bool) error {
 }
 
 func GetOnlineFollowers(userId string) ([]string, error) {
-	rows, err := DB.Query("SELECT follower_id FROM followers WHERE user_id = $1 AND online = true", userId)
+	rows, err := DB.Query("SELECT follower_id FROM followers JOINS users ON followers.follower_id = users.id WHERE followers.user_id = $1 AND users.online = true", userId)
 	if err != nil {
 		return nil, err
 	}
