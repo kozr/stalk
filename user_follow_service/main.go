@@ -1,7 +1,7 @@
 package follow_service
 
 import (
-	cache "github.com/kozr/stalk/cache"
+	"github.com/kozr/stalk/cache"
 	db "github.com/kozr/stalk/database"
 )
 

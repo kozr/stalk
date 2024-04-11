@@ -8,12 +8,12 @@ import (
 	"github.com/kozr/stalk/cache"
 	db "github.com/kozr/stalk/database"
 	"github.com/kozr/stalk/rsakey"
+	"github.com/kozr/stalk/special_locks"
 	follow_service "github.com/kozr/stalk/user_follow_service"
 )
 
 func HandleIncoming(ch chan string, conn Connection) {
 	defer handleUserDisconnect(conn.GetUserId())
-
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -21,15 +21,19 @@ func HandleIncoming(ch chan string, conn Connection) {
 			break
 		}
 		fmt.Printf("Received message: %s", message)
-		// TODO: Add RecencyLock to only execute the most recent request.
 		go handleUserUrlChange(conn.GetUserId(), string(message), time.Now().Unix())
 	}
 }
 
 func handleUserUrlChange(userId string, newUrl string, timestamp int64) {
+	recencyLock := cache.GetOrLoadUserLock(userId)
+	if lockResult := recencyLock.Lock(timestamp); lockResult != special_locks.LockSuccess {
+		return
+	}
 	cache.UpdateUserHashedUrl(userId, newUrl)
 	sameSiteFollowerIds := findFollowersOnSameUrl(userId, newUrl)
 	broadcastToFollowers(sameSiteFollowerIds, userId)
+	recencyLock.Unlock()
 }
 
 func HandleOutgoing(ch chan string, conn Connection) {

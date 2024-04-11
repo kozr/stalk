@@ -1,8 +1,6 @@
-package comm_manager
+package special_locks
 
-import (
-	"sync"
-)
+import "sync"
 
 type LockResult int
 
