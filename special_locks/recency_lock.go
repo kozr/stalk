@@ -30,9 +30,9 @@ func (pl *RecencyLock) Lock(timestamp int64) LockResult {
 	pl.lock.Lock()
 	defer pl.lock.Unlock()
 
-	// If current lock is active and request's timestamp is lower than the queued priority,
+	// If the current timestamp is lower than the next queued priority,
 	// recommend aborting to prevent priority inversion.
-	if pl.active && timestamp < pl.latestTimestamp {
+	if timestamp < pl.latestTimestamp {
 		return LockFailAbort
 	}
 
