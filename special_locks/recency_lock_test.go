@@ -14,7 +14,10 @@ func TestRecencyLock(t *testing.T) {
 		t.Error("Lock failed to abort")
 	}
 	rl.Unlock()
-	if rl.Lock(0) != LockSuccess {
+	if rl.Lock(0) != LockFailAbort {
+		t.Error("Lock failed to abort")
+	}
+	if rl.Lock(2) != LockSuccess {
 		t.Error("Lock failed to succeed")
 	}
 }
