@@ -53,18 +53,13 @@ func EstablishConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload struct {
-		UserId string `json:"userId"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		http.Error(w, "Failed to decode payload", http.StatusBadRequest)
+	// actually, find it in the path params
+	userId := r.URL.Query().Get("userId")
+	if userId == "" {
+		http.Error(w, "User ID is required", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
-
-	// Now you have payload.SenderId containing the sender ID
-	userId := payload.UserId
 
 	// Upgrade the connection to a WebSocket connection
 	conn, err := comm_manager.GetConnectionManager().Upgrade(w, r, r.Header)

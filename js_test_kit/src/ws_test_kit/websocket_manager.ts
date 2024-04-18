@@ -1,66 +1,59 @@
-import InterfaceService from "../services/interface_service";
+import WebSocket from "ws";
 
-interface Command {
-  method: () => void;
-  description: string;
-}
+const DEFAULT_WS_URL = "ws://localhost:8080/establish-connection";
 
-export default class WSTestKit {
-  private myInterface: InterfaceService;
-  private commands: { [key: string]: Command };
+export default class WebSocketManager {
+  private websockets: { [key: string]: WebSocket } = {};
 
   constructor() {
-    this.myInterface = InterfaceService.getInstance();
-    this.myInterface.setProgram("Websocket");
-    this.commands = {
-      add: {
-        method: this.addWebSocket,
-        description: "Add a new WebSocket",
-      },
-      help: {
-        method: this.displayHelp,
-        description: "Display help information",
-      },
-      exit: {
-        method: this.exit,
-        description: "Exit the application",
-      },
-    };
+    this.websockets = {};
   }
 
-  run(): void {
-    this.myInterface.question(
-      "Enter a command, or 'help' for a list of commands\n> ",
-      (command: string) => {
-        const cmd = this.commands[command.trim()];
-        if (cmd && typeof cmd.method === "function") {
-          cmd.method.call(this);
-        } else {
-          this.myInterface.write("Invalid command\n");
-          this.run();
-        }
+  openWebSocket(userId: string): WebSocket {
+    if (!userId) throw new Error("userId must be provided");
+    try {
+      if (this.websockets[userId]) {
+        console.log(`WebSocket already open for userId: ${userId}`);
+        return this.websockets[userId];
       }
-    );
+      const ws = new WebSocket(`${DEFAULT_WS_URL}?userId=${userId}`);
+      ws.onclose = () => {
+        console.log(`WebSocket closed for userId: ${userId}`);
+        delete this.websockets[userId];
+      };
+      ws.onerror = (err) => {
+        console.error(`WebSocket error for userId: ${userId}:`, err);
+        delete this.websockets[userId];
+      };
+      this.websockets[userId] = ws;
+      return ws;
+    } catch (e) {
+      console.error(`Error opening WebSocket for userId: ${userId}:`, e);
+      throw e;
+    }
   }
 
-  private addWebSocket(): void {
-    this.myInterface.write("Adding a new WebSocket...\n");
+  getWebSocket(userId: string): WebSocket {
+    return this.websockets[userId];
   }
 
-  private displayHelp(): void {
-    this.myInterface.write("Available commands:\n");
-    Object.entries(this.commands).forEach(([command, { description }]) => {
-      this.myInterface.write(`${command}: ${description}\n`);
+  getAllWebSockets(): { [key: string]: WebSocket } {
+    return this.websockets;
+  }
+
+  closeWebSocket(userId: string) {
+    if (this.websockets[userId]) {
+      this.websockets[userId].close();
+      delete this.websockets[userId];
+    } else {
+      console.warn(`No WebSocket found for userId: ${userId}`);
+    }
+  }
+
+  closeAllWebSockets() {
+    Object.keys(this.websockets).forEach((userId) => {
+      this.closeWebSocket(userId);
     });
-    this.run();
-  }
-
-  private exit(): void {
-    this.myInterface.write("Exiting...\n");
-    this.myInterface.close();
-  }
-
-  private test(): void {
-    // private method for internal class use
+    this.websockets = {};
   }
 }
